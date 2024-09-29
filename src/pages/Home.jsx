@@ -1,4 +1,4 @@
-import {useState } from "react";
+import {useEffect, useRef, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Card from "../components/Card";
 import {gql, useQuery} from '@apollo/client';
@@ -22,6 +22,10 @@ const Home = () => {
 	const [countries, setCountries] = useState([])
 	const [ activeContinent, setActiveContinent ] = useState(false)
 
+
+	const divRef = useRef(null);
+ 	const inputRef = useRef(null);
+
 	const { refetch } = useQuery(LIST_ALL_COUNTRY, {
 		variables: { 
 			search: "^" + inputToSearch,
@@ -31,6 +35,7 @@ const Home = () => {
 		onCompleted: (data) => {
 			setCountries(data.countries)
 			// setActiveContinent(false)
+			// console.log(data)
 		}
 	});
 
@@ -63,13 +68,31 @@ const Home = () => {
 		refetch()
 	}
 
+	useEffect(() => {
+		function handleClickOutside(event) {
+		  if (
+			divRef.current && 
+			!divRef.current.contains(event.target) &&
+			inputRef.current && 
+			!inputRef.current.contains(event.target)
+		  ) {
+			setActiveContinent(false);
+		  }
+		}
+	
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+		  document.removeEventListener('mousedown', handleClickOutside);
+		};
+	  }, []);
+
     return (
       	<div className="relative mx-auto w-full ">
 			<div className="flex justify-center w-full drop-shadow-md mt-10 sm:mt-2 ">
 				<div className="flex mt-5 bg-white rounded-full px-2 py-2 min-w-[60%]">
 					<div className="flex w-full ml-3 flex-col">
 						<label className="text-sm font-semibold hidden lg:block">País</label>
-						<input onChange={handleInputChange}  onKeyDown={(e) => {
+						<input onChange={handleInputChange} ref={inputRef}  onKeyDown={(e) => {
 						if(e.key === 'Enter'){
 							callFetch()
 						}
@@ -91,7 +114,10 @@ const Home = () => {
 					</div>
 				</div>
 			</div>
-			{ activeContinent &&(<div className=" absolute bg-white  rounded-3xl px-5 py-3 max-w-96 md:left-44 lg:left-52 top-28 sm:top-20 lg:top-24">
+			{ activeContinent &&(<div ref={divRef}
+			onMouseEnter={() => setActiveContinent(true)}
+			onMouseDown={() => setActiveContinent(true)}
+			className=" absolute bg-white  rounded-3xl px-5 py-3 max-w-96 md:left-44 lg:left-52 top-28 sm:top-20 lg:top-24">
 				<div className="flex justify-between mb-3">
 					<p className="font-semibold">Filtrar por continentes</p>
 					<button onClick={() => { 
