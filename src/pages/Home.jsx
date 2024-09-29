@@ -15,21 +15,22 @@ query getCountryData($search: String!,  $continents: [String!]) {
 `;
 
 const Home = () => {
+	const [inputToSearch, setInputToSearch] = useState('')
 	const [ search , setSearch ]= useState('')
 	const [ continent, setContinent ] = useState([])
-	const [ isSearching, setIsSearching ] = useState(false)
+	// const [ isSearching, setIsSearching ] = useState(false)
 	const [countries, setCountries] = useState([])
 	const [ activeContinent, setActiveContinent ] = useState(false)
 
-	const { data, refetch } = useQuery(LIST_ALL_COUNTRY, {
+	const { refetch } = useQuery(LIST_ALL_COUNTRY, {
 		variables: { 
-			search: "^" + search,
+			search: "^" + inputToSearch,
 			continents: continent.length > 0 ? continent : CONTINENTS.map(item => item.value)
 		},
-		skip: isSearching,
+		// skip: isSearching,
 		onCompleted: (data) => {
 			setCountries(data.countries)
-			console.log(data)
+			// setActiveContinent(false)
 		}
 	});
 
@@ -49,12 +50,17 @@ const Home = () => {
 	}
 
 	const handleInputChange = (e) => {
-		setIsSearching(true)
+		// setIsSearching(true)
 		setSearch(e.target.value)
 
-		setTimeout(() => {
-			setIsSearching(false)
-		}, 1500)
+		// setTimeout(() => {
+		// 	setIsSearching(false)
+		// }, 1500)
+	}
+
+	const callFetch = () => {
+		setInputToSearch(search)
+		refetch()
 	}
 
     return (
@@ -63,9 +69,15 @@ const Home = () => {
 				<div className="flex mt-5 bg-white rounded-full px-2 py-2 min-w-[60%]">
 					<div className="flex w-full ml-3 flex-col">
 						<label className="text-sm font-semibold hidden lg:block">País</label>
-						<input onChange={handleInputChange} onFocus={handleContinent} className="outline-none border-b-1 border-blue-500 text-sm text-blue-700 font-semibold" placeholder="Escribe el país que deseas ver"/>
+						<input onChange={handleInputChange}  onKeyDown={(e) => {
+						if(e.key === 'Enter'){
+							callFetch()
+						}
+						}} onFocus={handleContinent} className="outline-none border-b-1 border-blue-500 text-sm text-blue-700 font-semibold" placeholder="Escribe el país que deseas ver"/>
 					</div>
-					<button className="bg-blue-500 rounded-full py-1 px-4 text-white items-center flex gap-1"><span className=" items-center"><FaSearch/></span> <span className="hidden lg:block">Buscar</span></button>	
+					<button onClick={callFetch} className="bg-blue-500 rounded-full py-1 px-4 text-white items-center flex gap-1">
+						<span className=" items-center"><FaSearch/></span>
+						<span className="hidden lg:block">Buscar</span></button>	
 				</div>
 			</div>
 			<div className="mt-6 flex justify-center px-12 bg-yellow-200">
@@ -82,7 +94,9 @@ const Home = () => {
 			{ activeContinent &&(<div className=" absolute bg-white  rounded-3xl px-5 py-3 max-w-96 md:left-44 lg:left-52 top-28 sm:top-20 lg:top-24">
 				<div className="flex justify-between mb-3">
 					<p className="font-semibold">Filtrar por continentes</p>
-					<button className="text-blue-600 font-semibold">Limpiar</button>
+					<button onClick={() => { 
+						setContinent([])
+					}} className="text-blue-600 font-semibold">Limpiar</button>
 				</div>
 				<div className="grid grid-cols-3 gap-2">
 					{
