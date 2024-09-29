@@ -1,21 +1,37 @@
+import { useState } from "react";
+import { useEffect } from "react";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 const Card = (props) => {
-    const {country} = props
+    const {country, handleClick, cardState} = props
 
-    // console.log(props)
+    const [url, setUrl] = useState('')
 
-  return (
-    <div className="bg-white rounded-3xl drop-shadow-lg w-[210px]">
-        <img src="https://exportou.com/wp-content/uploads/2018/12/MEXICO-1024x696.jpg" className="w-full h-[100px] rounded-tl-3xl rounded-tr-2xl"/>
-        <div className="flex m-4 items-center">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo0kf0kaHt3s_pwARMBWL8yChtBbt9JNXF5Q&s" className="w-[40px] h-[30px]"/>
-            <div className="ml-2">
-                <p className=" font-bold leading-none text-sky-500">{country.name}</p>
-                <span className="font-semibold text-gray-400">México</span>
+    useEffect(() => {
+        const fetchCountry = async () => {
+            if (country) {
+                const response = await fetch(`https://pixabay.com/api/?key=46257530-62eef579a82314bea2734d833&q=${country.capital || country.capital}&image_type=photo`)
+                const data = await response.json()
+                const dt = data.hits[0]?.webformatURL || data.hits[1]?.webformatURL
+                setUrl(dt)
+            }
+        }
+        fetchCountry()
+    }, [])
+
+    return (
+        <div onClick={() => handleClick(country, url)} className={` rounded-3xl drop-shadow-lg w-[210px] ${cardState == country.code ? 'bg-sky-500': 'bg-white' }`}>
+            <LazyLoadImage src={url} className="w-full h-[100px] rounded-tl-3xl rounded-tr-2xl"/>
+            <div className="flex m-3 items-center">
+                <LazyLoadImage src={`https://flagsapi.com/${country.code}/flat/48.png`} width={48} height={48} effect="blur"/>
+                <div className="ml-1">
+                    <p className={`font-bold leading-none ${ cardState == country.code ?'text-white':'text-sky-500' }`}>{country.name}</p>
+                    <p className={`font-normal ${ cardState == country.code ?'text-white':'text-gray-400' }`}>{country.continent.name}</p>
+                </div>
             </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default Card

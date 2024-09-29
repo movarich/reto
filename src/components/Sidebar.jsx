@@ -22,7 +22,7 @@ const Sidebar = () => {
     },[])
 
     return (
-        <div className="bg-[#525353] w-[230px] min-h-screen hidden sm:block pt-6">
+        <div className={`bg-[#525353] w-[230px] min-h-screen sm:block pt-6 hidden`}>
             <div className="bg-[#cac7c7] mx-8 rounded-lg flex justify-center">
                 <img src="https://cnnespanol.cnn.com/wp-content/uploads/2016/08/destinos-logo-trans.png?resize=1024,576" className="w-40" />
             </div>    
