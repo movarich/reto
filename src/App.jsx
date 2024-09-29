@@ -14,7 +14,7 @@ function App() {
                 <Outlet/>
                 </div>
             </div>
-            <div className="absolute bottom-0 right-0 bg-white py-4 px-6 leading-8">
+            {/* <div className="absolute bottom-0 right-0 bg-white py-4 px-6 leading-8">
                 <img className="rounded-md mb-2 w-[200px]" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo0kf0kaHt3s_pwARMBWL8yChtBbt9JNXF5Q&s" />
                 <button className="absolute right-2 top-0">x</button>
                 <div className="flex items-center">
@@ -37,7 +37,7 @@ function App() {
                         ))
                     }
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }

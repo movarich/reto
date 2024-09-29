@@ -1,21 +1,79 @@
-import { useState } from "react";
+import {useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Card from "../components/Card";
+import {gql, useQuery} from '@apollo/client';
+import { CONTINENTS } from '../constans/constans';
+  
+//   const LIST_COUNTRIES = gql`
+// 	{
+// 	  countries {
+// 		name
+// 		code
+// 		languages {
+// 		  code
+// 		  name
+// 		}
+// 	  }
+// 	}
+//   `;
+
+//   const LIST_COUNTRIES_THAT_BEGIN_WITH_THE_LETTER_A = gql`
+// 	query ListCountriesThatBeginWithTheLetterA {
+// 		countries(filter: { name: { regex: "^A" } }) {
+// 			code
+// 			name
+// 			currency
+// 		}
+// 	}
+// 	`;
+
+	const LIST_ALL_COUNTRY = gql`
+	query getCountryData($search: String!) {
+		countries(filter: { name: { regex: $search } }) {
+			code
+			name
+			currency
+		}
+ 	}
+	`;
 
 const Home = () => {
-	const [ search , setSearch ]= useState()
-	const [countries, setCountries] = useState([1, 2, 3, 4, 5,6, 7,8, 9, 10, 11, 12, 13, 14])
+	const [ search , setSearch ]= useState('')
+	const [ isSearching, setIsSearching ] = useState(false)
+	const [countries, setCountries] = useState([])
 	const [ activeContinent, setActiveContinent ] = useState(false)
+
+	const { data, refetch } = useQuery(LIST_ALL_COUNTRY, {
+		variables: { search: "^" + search},
+		skip: isSearching,
+		onCompleted: (data) => {
+			setCountries(data.countries)
+			console.log(data)
+		}
+	});
 
 	const handleContinent = () => {
 		setActiveContinent(true)
-	}
+	}	
 
 	const [ continent, setContinent ] = useState([])
-	const selectContinent = (content) => {
 
-		setContinent(state => [...state, content])
-		console.log(continent)
+	const selectContinent = (content) => {
+		if(!continent.includes(content)){
+			setContinent([...continent, content])
+		} else {
+			const newArray = continent.filter(item => item !== content)
+			setContinent(newArray)
+		}
+	}
+
+	const handleInputChange = (e) => {
+		setIsSearching(true)
+		setSearch(e.target.value)
+
+		setTimeout(() => {
+			setIsSearching(false)
+		}, 1500)
 	}
 
     return (
@@ -24,7 +82,7 @@ const Home = () => {
 				<div className="flex mt-5 bg-white rounded-full px-2 py-2 min-w-[60%]">
 					<div className="flex w-full ml-3 flex-col">
 						<label className="text-sm font-semibold hidden lg:block">País</label>
-						<input onChange={(e) => setSearch(e.target.value)} onFocus={handleContinent} className="outline-none border-b-1 border-blue-500 text-sm text-blue-700 font-semibold" placeholder="Escribe el país que deseas ver"/>
+						<input onChange={handleInputChange} onFocus={handleContinent} className="outline-none border-b-1 border-blue-500 text-sm text-blue-700 font-semibold" placeholder="Escribe el país que deseas ver"/>
 					</div>
 					<button className="bg-blue-500 rounded-full py-1 px-4 text-white items-center flex gap-1"><span className=" items-center"><FaSearch/></span> <span className="hidden lg:block">Buscar</span></button>	
 				</div>
@@ -47,12 +105,12 @@ const Home = () => {
 				</div>
 				<div className="grid grid-cols-3 gap-2">
 					{
-						["África", "América", "Asia", "Europa", "Oceanía"].map((continent, index) => (
+						CONTINENTS.map((cc, index) => (
 							<div key={index}>
-								<button onClick={() => selectContinent(continent)}>
-									<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0k-HH6Z6y27b5jiaqHjWeBI5HC9D5h4Rc_Q&s" className="rounded-md hover:border-2 hover:border-blue-500"/>
+								<button onClick={() => selectContinent(cc.value)}>
+									<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0k-HH6Z6y27b5jiaqHjWeBI5HC9D5h4Rc_Q&s" className={`rounded-md ${continent.includes(cc.value) && 'border-blue-500 border-2'}`}/>
 								</button>
-								<p className="text-sm font-semibold text-left">{continent}</p>
+								<p className="text-sm font-semibold text-left">{cc.label}</p>
 							</div>
 						))
 					}
