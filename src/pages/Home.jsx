@@ -3,48 +3,29 @@ import { FaSearch } from "react-icons/fa";
 import Card from "../components/Card";
 import {gql, useQuery} from '@apollo/client';
 import { CONTINENTS } from '../constans/constans';
-  
-//   const LIST_COUNTRIES = gql`
-// 	{
-// 	  countries {
-// 		name
-// 		code
-// 		languages {
-// 		  code
-// 		  name
-// 		}
-// 	  }
-// 	}
-//   `;
 
-//   const LIST_COUNTRIES_THAT_BEGIN_WITH_THE_LETTER_A = gql`
-// 	query ListCountriesThatBeginWithTheLetterA {
-// 		countries(filter: { name: { regex: "^A" } }) {
-// 			code
-// 			name
-// 			currency
-// 		}
-// 	}
-// 	`;
-
-	const LIST_ALL_COUNTRY = gql`
-	query getCountryData($search: String!) {
-		countries(filter: { name: { regex: $search } }) {
-			code
-			name
-			currency
-		}
- 	}
-	`;
+const LIST_ALL_COUNTRY = gql`
+query getCountryData($search: String!,  $continents: [String!]) {
+	countries(filter: { name: { regex: $search }, continent: { in: $continents }  }) {
+		code
+		name
+		currency
+	}
+}
+`;
 
 const Home = () => {
 	const [ search , setSearch ]= useState('')
+	const [ continent, setContinent ] = useState([])
 	const [ isSearching, setIsSearching ] = useState(false)
 	const [countries, setCountries] = useState([])
 	const [ activeContinent, setActiveContinent ] = useState(false)
 
 	const { data, refetch } = useQuery(LIST_ALL_COUNTRY, {
-		variables: { search: "^" + search},
+		variables: { 
+			search: "^" + search,
+			continents: continent.length > 0 ? continent : CONTINENTS.map(item => item.value)
+		},
 		skip: isSearching,
 		onCompleted: (data) => {
 			setCountries(data.countries)
@@ -56,7 +37,7 @@ const Home = () => {
 		setActiveContinent(true)
 	}	
 
-	const [ continent, setContinent ] = useState([])
+	
 
 	const selectContinent = (content) => {
 		if(!continent.includes(content)){
